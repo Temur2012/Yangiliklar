@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}O'chirish: {{ news.title }} — BizNews{% endblock %}
+
+{% block content %}
+<style>
+.del-wrap { background:#f8f9fa; min-height:80vh; display:flex; align-items:center; padding:60px 0; }
+.del-card { background:#fff; border-radius:14px; box-shadow:0 8px 40px rgba(0,0,0,.1); overflow:hidden; max-width:560px; margin:0 auto; }
+.del-header { background:linear-gradient(135deg,#e74c3c,#c0392b); padding:24px 32px; display:flex; align-items:center; gap:14px; }
+.del-header .icon { font-size:28px; color:#fff; }
+.del-header h4 { color:#fff; margin:0; font-weight:800; font-size:18px; text-transform:uppercase; }
+.del-body { padding:32px; }
+.news-preview { background:#fdecea; border-left:4px solid #e74c3c; border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:24px; }
+.news-preview p { margin:0; font-weight:700; color:#333; font-size:15px; }
+.news-preview small { color:#888; font-size:12px; }
+.warning-text { color:#888; font-size:14px; margin-bottom:24px; }
+.warning-text i { color:#e74c3c; margin-right:6px; }
+.action-bar { display:flex; gap:12px; }
+.btn-del-confirm { background:#e74c3c; color:#fff; border:none; padding:12px 28px; border-radius:8px; font-weight:700; font-size:15px; cursor:pointer; transition:background .2s; }
+.btn-del-confirm:hover { background:#c0392b; }
+.btn-cancel { background:#fff; color:#666; border:2px solid #e0e0e0; padding:12px 24px; border-radius:8px; font-weight:600; font-size:14px; text-decoration:none; display:inline-flex; align-items:center; transition:all .2s; }
+.btn-cancel:hover { background:#f4f6f9; color:#333; text-decoration:none; }
+</style>
+
+<div class="del-wrap">
+    <div class="container">
+        <div class="del-card">
+            <div class="del-header">
+                <i class="fa fa-exclamation-triangle icon"></i>
+                <h4>Yangilikni o'chirish</h4>
+            </div>
+            <div class="del-body">
+                <div class="news-preview">
+                    <p>{{ news.title }}</p>
+                    <small>
+                        <i class="fa fa-tag mr-1"></i>{{ news.category.name }}
+                        &nbsp;|&nbsp;
+                        <i class="far fa-calendar mr-1"></i>{{ news.created_at|date:"d M, Y" }}
+                        &nbsp;|&nbsp;
+                        <i class="far fa-eye mr-1"></i>{{ news.views }} ko'rish
+                    </small>
+                </div>
+                <p class="warning-text">
+                    <i class="fa fa-exclamation-circle"></i>
+                    Bu yangilik va unga tegishli barcha izohlar <strong>butunlay o'chiriladi</strong>.
+                    Bu amalni qaytarib bo'lmaydi!
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="action-bar">
+                        <button type="submit" class="btn-del-confirm">
+                            <i class="fa fa-trash mr-2"></i>Ha, o'chirish
+                        </button>
+                        <a href="{% url 'news_detail' news.pk %}" class="btn-cancel">
+                            <i class="fa fa-arrow-left mr-1"></i>Bekor qilish
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}BizNews{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        .auth-dropdown .dropdown-menu {
+            min-width: 200px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,.2);
+            margin-top: 8px;
+        }
+        .auth-dropdown .dropdown-item {
+            padding: 9px 18px;
+            font-size: 13px;
+            transition: background .2s;
+        }
+        .auth-dropdown .dropdown-item:hover { background: #f0f4ff; }
+        .auth-dropdown .dropdown-item i { width: 18px; }
+        .auth-nav-link {
+            font-size: 13px;
+            color: rgba(255,255,255,.7) !important;
+            transition: color .2s;
+        }
+        .auth-nav-link:hover { color: #fff !important; }
+        .user-avatar {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 50% !important;
+            background: #f5a623 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            color: #1a1a2e !important;
+            margin-right: 6px !important;
+            min-width: 28px !important;
+        }
+        /* Til tugmalari */
+        .lang-switcher { display:flex; gap:5px; align-items:center; }
+        .lang-btn { padding:3px 9px; border:1px solid #555; border-radius:4px; cursor:pointer; font-size:12px; background:transparent; color:rgba(255,255,255,.7); font-weight:600; }
+        .lang-btn:hover, .lang-btn.active { background:#f0c000; border-color:#f0c000; color:#000; }
+        .goog-te-banner-frame { display:none !important; }
+        body { top:0 !important; }
+        .skiptranslate { display:none !important; }
+    </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="container-fluid d-none d-lg-block">
+    <div class="row align-items-center bg-dark px-lg-5">
+        <div class="col-lg-7">
+            <nav class="navbar navbar-expand-sm bg-dark p-0">
+                <ul class="navbar-nav ml-n2">
+                    <li class="nav-item border-right border-secondary">
+                        <a class="nav-link text-body small" href="#">{% now "l, d F Y" %}</a>
+                    </li>
+                    <li class="nav-item border-right border-secondary">
+                        <a class="nav-link text-body small" href="#">Reklama</a>
+                    </li>
+                    <li class="nav-item border-right border-secondary">
+                        <a class="nav-link text-body small" href="{% url 'contact' %}">Aloqa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-body small" href="/admin/">Admin</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="col-lg-5 text-right">
+            <nav class="navbar navbar-expand-sm bg-dark p-0 justify-content-end">
+                <ul class="navbar-nav mr-n2 align-items-center">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown auth-dropdown mr-3">
+                        <a class="nav-link auth-nav-link dropdown-toggle" href="#"
+                            id="userDrop" data-toggle="dropdown">
+                            <i class="fa fa-user-circle mr-1"></i><span translate="no">{{ user.username }}</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="px-3 py-2 border-bottom">
+                                <strong class="d-block">{{ user.get_full_name|default:user.username }}</strong>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                            <a class="dropdown-item" href="{% url 'change_password' %}">
+                                <i class="fa fa-key mr-2 text-warning"></i>Parol o'zgartirish
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                <i class="fa fa-sign-out-alt mr-2"></i>Chiqish
+                            </a>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="nav-item border-right border-secondary">
+                        <a class="nav-link auth-nav-link" href="{% url 'login' %}">
+                            <i class="fa fa-sign-in-alt mr-1"></i>Kirish
+                        </a>
+                    </li>
+                    <li class="nav-item mr-2">
+                        <a class="nav-link auth-nav-link" href="{% url 'register' %}">
+                            <i class="fa fa-user-plus mr-1"></i>Ro'yxat
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Til tugmalari -->
+                    <li class="nav-item mr-2">
+                        <div class="lang-switcher" translate="no">
+                            <button class="lang-btn active" onclick="translateTo('uz', this)" translate="no">UZ</button>
+                            <button class="lang-btn" onclick="translateTo('ru', this)" translate="no">RU</button>
+                            <button class="lang-btn" onclick="translateTo('en', this)" translate="no">EN</button>
+                        </div>
+                    </li>
+                    <div id="google_translate_element" style="display:none;"></div>
+
+                    <li class="nav-item"><a class="nav-link text-body" href="#"><i class="fab fa-twitter"></i></a></li>
+                    <li class="nav-item"><a class="nav-link text-body" href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li class="nav-item"><a class="nav-link text-body" href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li class="nav-item"><a class="nav-link text-body" href="#"><i class="fab fa-youtube"></i></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="row align-items-center bg-white py-3 px-lg-5">
+        <div class="col-lg-4">
+            <a href="{% url 'home' %}" class="navbar-brand p-0">
+                <h1 class="m-0 display-4 text-uppercase text-primary" translate="no">Biz<span class="text-secondary font-weight-normal">News</span></h1>
+            </a>
+        </div>
+        <div class="col-lg-8 text-right">
+            <img class="img-fluid" src="https://via.placeholder.com/728x90?text=Reklama" alt="">
+        </div>
+    </div>
+</div>
+
+<!-- Navbar -->
+<div class="container-fluid p-0">
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-2 py-lg-0 px-lg-5">
+        <a href="{% url 'home' %}" class="navbar-brand d-block d-lg-none">
+            <h1 class="m-0 display-4 text-uppercase text-primary" translate="no">Biz<span class="text-white font-weight-normal">News</span></h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
+            <div class="navbar-nav mr-auto py-0">
+                <a href="{% url 'home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Bosh sahifa</a>
+                {% for cat in categories %}
+                <a href="{% url 'category_detail' cat.slug %}" class="nav-item nav-link">{{ cat.name }}</a>
+                {% endfor %}
+                <a href="{% url 'contact' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Aloqa</a>
+                <!-- Mobil auth -->
+                <div class="d-lg-none border-top border-secondary mt-2 pt-2">
+                    {% if user.is_authenticated %}
+                    <span class="nav-link text-white"><i class="fa fa-user mr-1"></i>{{ user.username }}</span>
+                    <a href="{% url 'change_password' %}" class="nav-link text-secondary"><i class="fa fa-key mr-1"></i>Parol o'zgartirish</a>
+                    <a href="{% url 'logout' %}" class="nav-link text-danger"><i class="fa fa-sign-out-alt mr-1"></i>Chiqish</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="nav-link"><i class="fa fa-sign-in-alt mr-1"></i>Kirish</a>
+                    <a href="{% url 'register' %}" class="nav-link"><i class="fa fa-user-plus mr-1"></i>Ro'yxatdan o'tish</a>
+                    {% endif %}
+                    {% if user.is_superuser %}
+                    <a href="{% url 'news_create' %}"
+                       class="btn btn-success btn-sm ml-2 font-weight-bold d-none d-lg-inline-flex align-items-center"
+                       style="border-radius:6px; padding:6px 16px; font-size:13px;">
+                        <i class="fa fa-plus mr-1"></i> Yangilik qo'shish
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Qidiruv -->
+            <form method="get" action="{% url 'search' %}" class="input-group d-none d-lg-flex" style="width:280px;">
+                <input type="text" name="q" value="{{ request.GET.q }}"
+                       class="form-control border-0" placeholder="Qidiruv..." autocomplete="off">
+                <div class="input-group-append">
+                    <button class="input-group-text bg-primary text-white border-0 px-3" type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<!-- Xabarlar -->
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<div class="container-fluid bg-dark pt-5 px-sm-3 px-md-5 mt-5">
+    <div class="row py-4">
+        <div class="col-lg-3 col-md-6 mb-5">
+            <a href="{% url 'home' %}">
+               <h1 class="m-0 display-4 text-uppercase text-primary" translate="no">Biz<span class="text-white font-weight-normal">News</span></h1>
+            </a>
+            <p class="mt-2 text-white">O'zbekiston va dunyo yangiliklari.</p>
+            <div class="d-flex mt-4">
+                <a class="btn btn-outline-secondary rounded-circle text-center mr-2 px-0" style="width:38px;height:38px;" href="#"><i class="fab fa-twitter"></i></a>
+                <a class="btn btn-outline-secondary rounded-circle text-center mr-2 px-0" style="width:38px;height:38px;" href="#"><i class="fab fa-facebook-f"></i></a>
+                <a class="btn btn-outline-secondary rounded-circle text-center mr-2 px-0" style="width:38px;height:38px;" href="#"><i class="fab fa-instagram"></i></a>
+                <a class="btn btn-outline-secondary rounded-circle text-center px-0" style="width:38px;height:38px;" href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-5">
+            <h5 class="text-white text-uppercase font-weight-bold mb-4">Kategoriyalar</h5>
+            {% for cat in categories %}
+            <a class="d-block text-secondary mb-2" href="{% url 'category_detail' cat.slug %}">
+                <i class="fa fa-angle-right text-white mr-2"></i>{{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+        <div class="col-lg-3 col-md-6 mb-5">
+            <h5 class="text-white text-uppercase font-weight-bold mb-4">So'nggi yangiliklar</h5>
+            {% for article in latest_news %}
+            <a class="d-block text-secondary mb-2" href="{% url 'news_detail' article.pk %}">{{ article.title|truncatechars:50 }}</a>
+            {% endfor %}
+        </div>
+        <div class="col-lg-3 col-md-6 mb-5">
+            <h5 class="text-white text-uppercase font-weight-bold mb-4">Obuna bo'ling</h5>
+            <div class="input-group">
+                <input type="email" class="form-control border-0" placeholder="Email manzilingiz">
+                <div class="input-group-append">
+                    <button class="btn btn-primary px-3">Obuna</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid py-4" style="background:#111;">
+    <p class="m-0 text-center text-white">&copy; 2026 <a class="text-primary" href="#">BizNews</a>. Barcha huquqlar himoyalangan.</p>
+</div>
+
+<a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+
+<!-- Google Translate -->
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'uz',
+        includedLanguages: 'uz,ru,en',
+        autoDisplay: false
+    }, 'google_translate_element');
+}
+
+function translateTo(lang, btn) {
+    document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    if (lang === 'uz') {
+        // O'zbek tiliga qaytganda cookie o'chirib, sahifani reload qilamiz
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+        location.reload();
+        return;
+    }
+
+    var select = document.querySelector('.goog-te-combo');
+    if (select) {
+        select.value = lang;
+        select.dispatchEvent(new Event('change'));
+    } else {
+        setTimeout(function(){ translateTo(lang, btn); }, 500);
+    }
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Yangi yangilik — BizNews{% endblock %}
+
+{% block content %}
+<style>
+.editor-wrap {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding: 40px 0 60px;
+}
+.editor-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.09);
+    overflow: hidden;
+}
+.editor-header {
+    background: linear-gradient(135deg,#1a1a2e,#16213e);
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.editor-header .icon-circle {
+    width: 46px; height: 46px;
+    background: #27ae60;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: #fff;
+}
+.editor-header h4 {
+    color: #fff;
+    margin: 0;
+    font-weight: 800;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+.editor-body { padding: 32px; }
+.field-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 6px;
+    letter-spacing: .4px;
+}
+.field-label .req { color: #e74c3c; margin-left: 3px; }
+.form-control {
+    border: 1.5px solid #e0e6ed;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border .2s, box-shadow .2s;
+}
+.form-control:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39,174,96,.1);
+}
+textarea.form-control { resize: vertical; min-height: 260px; line-height: 1.7; }
+select.form-control { height: 46px; }
+input[type="text"].form-control,
+input[type="file"].form-control { height: 46px; }
+
+/* Checkbox toggle */
+.toggle-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f4f6f9;
+    border-radius: 8px;
+    padding: 10px 18px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all .2s;
+    user-select: none;
+}
+.toggle-item:has(input:checked) {
+    background: #eafaf1;
+    border-color: #27ae60;
+}
+.toggle-item input { display: none; }
+.toggle-item .dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+}
+.toggle-item:has(input:checked) .dot {
+    background: #27ae60;
+    border-color: #27ae60;
+}
+.toggle-item:has(input:checked) .dot::after {
+    content: '✓';
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+}
+.toggle-label { font-size: 14px; font-weight: 600; color: #333; }
+
+/* Image preview */
+.img-preview-box {
+    border: 2px dashed #d0d7e3;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    background: #fafbfc;
+    cursor: pointer;
+    transition: border .2s;
+    position: relative;
+}
+.img-preview-box:hover { border-color: #27ae60; }
+.img-preview-box input { display: none; }
+.img-preview-box .placeholder i { font-size: 40px; color: #ccc; margin-bottom: 8px; }
+.img-preview-box .placeholder p { color: #aaa; font-size: 13px; margin: 0; }
+#imgPreview { max-width: 100%; border-radius: 8px; display: none; max-height: 220px; object-fit: cover; }
+
+/* Action buttons */
+.action-bar {
+    display: flex;
+    gap: 12px;
+    padding: 24px 32px;
+    border-top: 1px solid #eef0f4;
+    background: #fafbfc;
+}
+.btn-save {
+    background: #27ae60; color: #fff;
+    border: none; padding: 12px 32px;
+    border-radius: 8px; font-weight: 700;
+    font-size: 15px; cursor: pointer;
+    transition: background .2s;
+}
+.btn-save:hover { background: #1e8449; }
+.btn-cancel {
+    background: #fff; color: #666;
+    border: 2px solid #e0e0e0;
+    padding: 12px 24px; border-radius: 8px;
+    font-weight: 600; font-size: 14px;
+    text-decoration: none;
+    display: inline-flex; align-items: center;
+    transition: all .2s;
+}
+.btn-cancel:hover { background: #f4f6f9; color: #333; text-decoration: none; }
+</style>
+
+<div class="editor-wrap">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="editor-card">
+
+                        <!-- Header -->
+                        <div class="editor-header">
+                            <div class="icon-circle"><i class="fa fa-plus"></i></div>
+                            <h4>Yangi yangilik qo'shish</h4>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="editor-body">
+
+                            <!-- Sarlavha -->
+                            <div class="form-group">
+                                <div class="field-label">Sarlavha <span class="req">*</span></div>
+                                <input type="text" name="title" class="form-control"
+                                       placeholder="Yangilik sarlavhasini kiriting..."
+                                       required autofocus>
+                            </div>
+
+                            <!-- Kategoriya -->
+                            <div class="form-group">
+                                <div class="field-label">Kategoriya <span class="req">*</span></div>
+                                <select name="category" class="form-control" required>
+                                    <option value="">— Kategoriyani tanlang —</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.pk }}">{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Matn -->
+                            <div class="form-group">
+                                <div class="field-label">Matn <span class="req">*</span></div>
+                                <textarea name="content" class="form-control"
+                                          placeholder="Yangilik matni..." required></textarea>
+                            </div>
+
+                            <!-- Rasm -->
+                            <div class="form-group">
+                                <div class="field-label">Rasm</div>
+                                <div class="img-preview-box" onclick="document.getElementById('imgInput').click()">
+                                    <input type="file" name="image" id="imgInput"
+                                           accept="image/*" onchange="previewImg(event)">
+                                    <div class="placeholder" id="imgPlaceholder">
+                                        <i class="fa fa-cloud-upload-alt"></i>
+                                        <p>Rasm tanlash uchun bosing (JPEG, PNG, WebP)</p>
+                                    </div>
+                                    <img id="imgPreview" alt="Preview">
+                                </div>
+                            </div>
+
+                            <!-- Checkboxlar -->
+                            <div class="form-group">
+                                <div class="field-label">Sozlamalar</div>
+                                <div class="toggle-group">
+                                    <label class="toggle-item">
+                                        <input type="checkbox" name="is_breaking">
+                                        <div class="dot"></div>
+                                        <span class="toggle-label">
+                                            <i class="fa fa-bolt text-warning mr-1"></i>
+                                            So'nggi xabar
+                                        </span>
+                                    </label>
+                                    <label class="toggle-item">
+                                        <input type="checkbox" name="is_main_slider">
+                                        <div class="dot"></div>
+                                        <span class="toggle-label">
+                                            <i class="fa fa-star text-primary mr-1"></i>
+                                            Bosh slider
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Action bar -->
+                        <div class="action-bar">
+                            <button type="submit" class="btn-save">
+                                <i class="fa fa-check mr-2"></i>Saqlash
+                            </button>
+                            <a href="{% url 'home' %}" class="btn-cancel">
+                                <i class="fa fa-times mr-1"></i>Bekor qilish
+                            </a>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function previewImg(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        const img = document.getElementById('imgPreview');
+        const ph  = document.getElementById('imgPlaceholder');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+        ph.style.display  = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+{% endblock %}
+{% endblock %}

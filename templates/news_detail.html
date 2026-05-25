@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ news.title }} — BizNews{% endblock %}
+
+{% block content %}
+<style>
+/* ── DETAIL PAGE ─────────────────────────── */
+.news-hero {
+    position: relative;
+    max-height: 480px;
+    overflow: hidden;
+    background: #111;
+}
+.news-hero img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    opacity: .85;
+}
+.news-meta-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #777;
+}
+.news-meta-bar .badge { font-size: 12px; padding: 5px 10px; }
+.news-body { font-size: 16px; line-height: 1.9; color: #333; }
+.news-body p { margin-bottom: 18px; }
+
+/* Superuser action tugmalari */
+.admin-bar {
+    display: flex;
+    gap: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg,#1a1a2e,#16213e);
+    border-radius: 10px;
+    margin-bottom: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.admin-bar span {
+    color: #aaa;
+    font-size: 13px;
+    margin-right: auto;
+}
+.btn-edit   { background:#f0a500; color:#fff; border:none; padding:8px 20px; border-radius:6px; font-weight:600; font-size:13px; text-decoration:none; }
+.btn-edit:hover { background:#d4920a; color:#fff; text-decoration:none; }
+.btn-del    { background:#e74c3c; color:#fff; border:none; padding:8px 20px; border-radius:6px; font-weight:600; font-size:13px; text-decoration:none; }
+.btn-del:hover  { background:#c0392b; color:#fff; text-decoration:none; }
+.btn-create { background:#27ae60; color:#fff; border:none; padding:8px 20px; border-radius:6px; font-weight:600; font-size:13px; text-decoration:none; }
+.btn-create:hover { background:#1e8449; color:#fff; text-decoration:none; }
+
+/* Ko'rishlar */
+.views-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f4f6f9;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    color: #555;
+    font-weight: 600;
+}
+.views-badge i { color: #007bff; }
+
+/* ── COMMENTS ────────────────────────────── */
+.comments-section { margin-top: 48px; }
+.comments-title {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #007bff;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.comments-title .cnt {
+    background: #007bff;
+    color: #fff;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 13px;
+}
+.comment-card {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #eef0f4;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    transition: box-shadow .2s;
+}
+.comment-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.07); }
+.comment-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#007bff,#6610f2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 18px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+.comment-body { flex: 1; min-width: 0; }
+.comment-user {
+    font-weight: 700;
+    font-size: 14px;
+    color: #222;
+    margin-bottom: 4px;
+}
+.comment-time { font-size: 12px; color: #aaa; margin-left: 8px; }
+.comment-text { font-size: 14px; color: #444; line-height: 1.6; }
+.comment-del-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 13px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: .6;
+    transition: opacity .2s;
+}
+.comment-del-btn:hover { opacity: 1; background: #fdecea; }
+
+/* Izoh forma */
+.comment-form-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+}
+.comment-form-box h6 {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 12px;
+}
+.comment-form-box textarea {
+    border-radius: 8px;
+    border: 1.5px solid #e0e0e0;
+    resize: vertical;
+    font-size: 14px;
+    padding: 12px;
+    transition: border .2s;
+}
+.comment-form-box textarea:focus {
+    border-color: #007bff;
+    box-shadow: none;
+    outline: none;
+}
+.btn-comment {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .2s;
+}
+.btn-comment:hover { background: #0056b3; }
+.login-to-comment {
+    text-align: center;
+    padding: 28px;
+    background: #f0f4ff;
+    border-radius: 12px;
+    border: 2px dashed #b8d0ff;
+    margin-top: 24px;
+}
+.login-to-comment i { font-size: 32px; color: #007bff; margin-bottom: 10px; }
+.login-to-comment p { color: #555; margin-bottom: 14px; font-size: 14px; }
+</style>
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="container">
+        <div class="row">
+
+            <!-- Ana kontent -->
+            <div class="col-lg-8">
+
+                <!-- Superuser panel -->
+                {% if user.is_superuser %}
+                <div class="admin-bar">
+                    <span><i class="fa fa-shield-alt mr-1"></i>Superuser panel</span>
+                    <a href="{% url 'news_create' %}" class="btn-create">
+                        <i class="fa fa-plus mr-1"></i>Yangi yangilik
+                    </a>
+                    <a href="{% url 'news_edit' news.pk %}" class="btn-edit">
+                        <i class="fa fa-edit mr-1"></i>Tahrirlash
+                    </a>
+                    <a href="{% url 'news_delete' news.pk %}" class="btn-del">
+                        <i class="fa fa-trash mr-1"></i>O'chirish
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Sarlavha -->
+                <h2 class="font-weight-bold text-uppercase mb-3" style="line-height:1.4;">
+                    {{ news.title }}
+                </h2>
+
+                <!-- Meta bar -->
+                <div class="news-meta-bar">
+                    <a class="badge badge-primary text-uppercase"
+                       href="{% url 'category_detail' news.category.slug %}">
+                        {{ news.category.name }}
+                    </a>
+                    <span><i class="far fa-calendar-alt mr-1"></i>{{ news.created_at|date:"d M, Y — H:i" }}</span>
+                    <span class="views-badge">
+                        <i class="far fa-eye"></i> {{ news.views }} ko'rishlar
+                    </span>
+                    <span><i class="far fa-comment-alt mr-1"></i>{{ comments.count }} izoh</span>
+                </div>
+
+                <!-- Rasm -->
+                {% if news.image %}
+                <div class="mb-4">
+                    <img src="{{ news.image.url }}" class="img-fluid w-100 rounded"
+                         style="max-height:480px;object-fit:cover;" alt="{{ news.title }}">
+                </div>
+                {% endif %}
+
+                <!-- Matn -->
+                <div class="news-body">
+                    {{ news.content|linebreaks }}
+                </div>
+
+                <!-- ── IZOHLAR ─────────────────────────── -->
+                <div class="comments-section">
+                    <div class="comments-title">
+                        <i class="far fa-comments text-primary"></i>
+                        Izohlar
+                        <span class="cnt">{{ comments.count }}</span>
+                    </div>
+
+                    <!-- Izoh ro'yxati -->
+                    {% for comment in comments %}
+                    <div class="comment-card">
+                        <div class="comment-avatar">{{ comment.user.username|first }}</div>
+                        <div class="comment-body">
+                            <div class="comment-user">
+                                {{ comment.user.get_full_name|default:comment.user.username }}
+                                <span class="comment-time">
+                                    {{ comment.created_at|date:"d M, Y — H:i" }}
+                                </span>
+                            </div>
+                            <div class="comment-text">{{ comment.text }}</div>
+                        </div>
+                        {% if user == comment.user or user.is_superuser %}
+                        <form method="post" action="{% url 'delete_comment' comment.pk %}"
+                              style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="comment-del-btn"
+                                    onclick="return confirm('Izohni o\'chirasizmi?')">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="far fa-comment-alt fa-2x mb-2"></i>
+                        <p>Hali izoh yo'q. Birinchi izoh yozuvchi siz bo'ling!</p>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Izoh yozish formasi -->
+                    {% if user.is_authenticated %}
+                    <div class="comment-form-box">
+                        <h6><i class="fa fa-pen mr-1 text-primary"></i>Izoh qoldiring</h6>
+                        <form method="post" action="{% url 'add_comment' news.pk %}">
+                            {% csrf_token %}
+                            <textarea name="text" class="form-control mb-3"
+                                      rows="3" placeholder="Fikringizni yozing..."
+                                      required></textarea>
+                            <button type="submit" class="btn-comment">
+                                <i class="fa fa-paper-plane mr-1"></i>Yuborish
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="login-to-comment">
+                        <div><i class="fa fa-lock"></i></div>
+                        <p>Izoh yozish uchun tizimga kiring yoki ro'yxatdan o'ting.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}"
+                           class="btn btn-primary mr-2">
+                            <i class="fa fa-sign-in-alt mr-1"></i>Kirish
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary">
+                            <i class="fa fa-user-plus mr-1"></i>Ro'yxat
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- ── IZOHLAR TUGADI ──────────────────── -->
+
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+
+                <!-- O'xshash yangiliklar -->
+                {% if related %}
+                <div class="mb-4">
+                    <div class="section-title mb-0">
+                        <h4 class="m-0 text-uppercase font-weight-bold">O'xshash yangiliklar</h4>
+                    </div>
+                    <div class="bg-white border border-top-0 p-3">
+                        {% for r in related %}
+                        <div class="d-flex align-items-center mb-3" style="height:90px;">
+                            {% if r.image %}
+                            <img src="{{ r.image.url }}"
+                                 style="width:90px;height:90px;object-fit:cover;flex-shrink:0;">
+                            {% else %}
+                            <div style="width:90px;height:90px;background:#eee;flex-shrink:0;
+                                        display:flex;align-items:center;justify-content:center;">
+                                <i class="fa fa-newspaper text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="px-2">
+                                <a class="badge badge-primary text-uppercase p-1"
+                                   href="{% url 'category_detail' r.category.slug %}">
+                                    {{ r.category.name }}
+                                </a>
+                                <a class="d-block small font-weight-bold text-secondary mt-1"
+                                   href="{% url 'news_detail' r.pk %}">
+                                    {{ r.title|truncatechars:55 }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- So'nggi yangiliklar -->
+                <div class="mb-4">
+                    <div class="section-title mb-0">
+                        <h4 class="m-0 text-uppercase font-weight-bold">So'nggi yangiliklar</h4>
+                    </div>
+                    <div class="bg-white border border-top-0 p-3">
+                        {% for art in latest_news %}
+                        <a class="d-block text-secondary mb-2 small" href="{% url 'news_detail' art.pk %}">
+                            <i class="fa fa-angle-right text-primary mr-1"></i>
+                            {{ art.title|truncatechars:55 }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

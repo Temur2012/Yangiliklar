@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - BizNews {% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="container">
+        <div class="section-title">
+            <h4 class="m-0 text-uppercase font-weight-bold">{{ category.name }}</h4>
+        </div>
+        <div class="row">
+            {% for news in news_list %}
+            <div class="col-lg-4 mb-4">
+                <div class="position-relative">
+                    {% if news.image %}
+                    <img class="img-fluid w-100" src="{{ news.image.url }}" style="height:200px;object-fit:cover;">
+                    {% else %}
+                    <img class="img-fluid w-100" src="{% static 'img/news-700x435-1.jpg' %}" style="height:200px;object-fit:cover;">
+                    {% endif %}
+                    <div class="bg-white border border-top-0 p-3">
+                        <div class="mb-2">
+                            <a class="badge badge-primary text-uppercase p-1 mr-2" href="#">{{ news.category.name }}</a>
+                            <small>{{ news.created_at|date:"d M, Y" }}</small>
+                        </div>
+                        <a class="h6 d-block text-secondary text-uppercase font-weight-bold" href="{% url 'news_detail' news.pk %}">{{ news.title|truncatechars:70 }}</a>
+                        <p class="m-0 small">{{ news.excerpt|default:news.content|truncatechars:100 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-muted">Bu kategoriyada hali yangiliklar yo'q.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}BizNews - Bosh sahifa{% endblock %}
+
+{% block content %}
+
+<!-- Slider Start -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-7 px-0">
+            {% if slider_news %}
+            <div class="owl-carousel main-carousel position-relative">
+                {% for news in slider_news %}
+                <div class="position-relative overflow-hidden" style="height:500px;">
+                    <img class="img-fluid w-100 h-100" src="{{ news.image.url }}" style="object-fit:cover;">
+                    <div class="overlay">
+                        <div class="mb-2">
+                            <a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2"
+                               href="{% url 'category_detail' news.category.slug %}">{{ news.category.name }}</a>
+                            <a class="text-white" href="#">{{ news.created_at|date:"d M, Y" }}</a>
+                        </div>
+                        <a class="h2 m-0 text-white text-uppercase font-weight-bold"
+                           href="{% url 'news_detail' news.pk %}">{{ news.title }}</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Rasm yo'q bo'lsa default ko'rsatish -->
+            <div class="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" style="height:500px;">
+                <h3 class="text-white">Yangiliklar yuklanmoqda...</h3>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-5 px-0">
+            <div class="row mx-0">
+                {% for news in latest_news_main %}
+                <div class="col-6 px-0">
+                    <div class="position-relative overflow-hidden" style="height:250px;">
+                        <img class="img-fluid w-100 h-100" src="{{ news.image.url }}" style="object-fit:cover;">
+                        <div class="overlay">
+                            <a class="badge badge-primary text-uppercase p-1 mr-1"
+                               href="{% url 'category_detail' news.category.slug %}">{{ news.category.name }}</a>
+                            <a class="d-block h6 m-0 text-white text-uppercase font-weight-semi-bold mt-1"
+                               href="{% url 'news_detail' news.pk %}">{{ news.title|truncatechars:60 }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Slider End -->
+
+<!-- Breaking News Start -->
+{% if breaking_news %}
+<div class="container-fluid py-3 mb-3" style="background:#efefef;">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white font-weight-bold px-3 py-2 mr-3" style="white-space:nowrap;">
+                <i class="fa fa-bolt mr-2"></i>So'nggi xabarlar
+            </div>
+            <div class="owl-carousel tranding-carousel" style="width:100%;">
+                {% for news in breaking_news %}
+                <a class="text-secondary" href="{% url 'news_detail' news.pk %}">{{ news.title }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<!-- Breaking News End -->
+
+<!-- Latest + Sidebar Start -->
+<div class="container-fluid mt-4">
+    <div class="container">
+        <div class="row">
+
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="section-title">
+                    <h4 class="m-0 text-uppercase font-weight-bold">So'nggi yangiliklar</h4>
+                </div>
+                <div class="row">
+                    {% for news in latest_news %}
+                    {% if forloop.counter <= 4 %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="position-relative">
+                            {% if news.image %}
+                            <img class="img-fluid w-100" src="{{ news.image.url }}" style="height:250px;object-fit:cover;">
+                            {% else %}
+                            <img class="img-fluid w-100" src="{% static 'img/news-700x435-1.jpg' %}" style="height:250px;object-fit:cover;">
+                            {% endif %}
+                            <div class="bg-white border border-top-0 p-4">
+                                <div class="mb-2">
+                                    <a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2" href="{% url 'category_detail' news.category.slug %}">{{ news.category.name }}</a>
+                                    <small>{{ news.created_at|date:"d M, Y" }}</small>
+                                </div>
+                                <a class="h5 d-block mb-3 text-secondary text-uppercase font-weight-bold" href="{% url 'news_detail' news.pk %}">{{ news.title|truncatechars:70 }}</a>
+                                <p class="m-0">{{ news.excerpt|default:news.content|truncatechars:120 }}</p>
+                            </div>
+                            <div class="d-flex justify-content-between bg-white border border-top-0 p-3">
+                                <small><i class="far fa-eye mr-1"></i>{{ news.views }} ko'rishlar</small>
+                                <small>{{ news.created_at|date:"d M, Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Kichik yangiliklar -->
+                <div class="row">
+                    {% for news in latest_news %}
+                    {% if forloop.counter > 4 %}
+                    <div class="col-lg-6 mb-3">
+                        <div class="d-flex align-items-center bg-white border" style="height:110px;">
+                            {% if news.image %}
+                            <img src="{{ news.image.url }}" style="width:110px;height:110px;object-fit:cover;">
+                            {% else %}
+                            <img src="{% static 'img/news-110x110-1.jpg' %}" style="width:110px;height:110px;object-fit:cover;">
+                            {% endif %}
+                            <div class="px-3">
+                                <a class="badge badge-primary text-uppercase p-1 mr-1" href="{% url 'category_detail' news.category.slug %}">{{ news.category.name }}</a>
+                                <a class="d-block h6 mt-1 text-secondary text-uppercase font-weight-bold" href="{% url 'news_detail' news.pk %}">{{ news.title|truncatechars:60 }}</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+
+                <!-- Ijtimoiy tarmoqlar -->
+                <div class="mb-4">
+                    <div class="section-title mb-0">
+                        <h4 class="m-0 text-uppercase font-weight-bold">Ijtimoiy tarmoqlar</h4>
+                    </div>
+                    <div class="bg-white border border-top-0 p-3">
+                        <a href="#" class="d-block w-100 text-white text-decoration-none mb-3" style="background:#39569E;">
+                            <i class="fab fa-facebook-f text-center py-4 mr-3" style="width:65px;background:rgba(0,0,0,.2);"></i>
+                            <span>12,345 Muxlislar</span>
+                        </a>
+                        <a href="#" class="d-block w-100 text-white text-decoration-none mb-3" style="background:#52AAF4;">
+                            <i class="fab fa-twitter text-center py-4 mr-3" style="width:65px;background:rgba(0,0,0,.2);"></i>
+                            <span>12,345 Kuzatuvchilar</span>
+                        </a>
+                        <a href="#" class="d-block w-100 text-white text-decoration-none mb-3" style="background:#C8359D;">
+                            <i class="fab fa-instagram text-center py-4 mr-3" style="width:65px;background:rgba(0,0,0,.2);"></i>
+                            <span>12,345 Kuzatuvchilar</span>
+                        </a>
+                        <a href="#" class="d-block w-100 text-white text-decoration-none" style="background:#DC472E;">
+                            <i class="fab fa-youtube text-center py-4 mr-3" style="width:65px;background:rgba(0,0,0,.2);"></i>
+                            <span>12,345 Obunachi</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Trendda -->
+                    <div class="bg-white border border-top-0 p-3">
+                        {% for news in trending_news %}
+                        <div class="d-flex align-items-center mb-3" style="height:110px;">
+                            {% if news.image %}
+                            <img src="{{ news.image.url }}" style="width:110px;height:110px;object-fit:cover;">
+                            {% else %}
+                            <img src="{% static 'img/news-110x110-1.jpg' %}" style="width:110px;height:110px;object-fit:cover;">
+                            {% endif %}
+                            <div class="px-3 border border-left-0 h-100 d-flex flex-column justify-content-center">
+                                <a class="badge badge-primary text-uppercase p-1" href="{% url 'category_detail' news.category.slug %}">{{ news.category.name }}</a>
+                                <a class="d-block h6 mt-2 text-secondary text-uppercase font-weight-bold" href="{% url 'news_detail' news.pk %}">{{ news.title|truncatechars:60 }}</a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted m-0">Hali yangiliklar yo'q</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Kategoriyalar -->
+                <div class="mb-4">
+                    <div class="section-title mb-0">
+                        <h4 class="m-0 text-uppercase font-weight-bold">Kategoriyalar</h4>
+                    </div>
+                    <div class="bg-white border border-top-0 p-3">
+                        <div class="d-flex flex-wrap m-n1">
+                            {% for cat in categories %}
+                            <a href="{% url 'category_detail' cat.slug %}" class="btn btn-sm btn-outline-secondary m-1">{{ cat.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Latest + Sidebar End -->
+
+{% endblock %}
