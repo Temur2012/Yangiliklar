@@ -25,6 +25,9 @@ urlpatterns = [
 
     # Accounts
     path('', include('accounts.urls')),
-    
+]
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Render serverida (DEBUG=False bo'lganda ham) rasmlar ishlashi uchun:
+if settings.DEBUG or not settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
